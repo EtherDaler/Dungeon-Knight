@@ -4,8 +4,11 @@ from . import settings
 from pygame.math import Vector2 as vec
 
 
-# Родительский Класс для всех Спрайтов
 class Sprite:
+    """
+    Родительский Класс для всех Спрайтов
+    """
+
     hp = 0          # Шкала здоровья
     armor = 0       # Броня
     speed = 0       # Скорость передвижения
@@ -32,9 +35,27 @@ class Sprite:
              7: 5} # Фрейм анимации для ориентации
     stanned = False # Состояние оглушения
 
-    def __init__(self, image: object, coords: list, hp: int, k_hp: int, armor: float, k_armor: int, speed: int, view_range: int,
-                 level: int, live: bool, hand: bool, bullets: int, damage: int, k_damage: int, range: int, p_speed: int,
-                 proj_img: str):
+    def __init__(self, image: object, coords: list, hp: int = 100, k_hp: int = 12, armor: float = 0, k_armor: int = 1, speed: int = 150, view_range: int = 100,
+                 level: int = 1, live: bool = True, hand: bool = True, bullets: int = 0, damage: int = 10, k_damage: int = 10, range: int = 20, p_speed: int = 20,
+                 proj_img: str = ""):
+
+        """
+        :image: моделька
+        :coords: начальные координаты
+        :hp: жизни
+        :k_hp: коэфицент увеличения жизней
+        :armor: броня
+        :k_armor: коэфицент увеличения брони
+        :speed: скорость передвижения
+        :view_range: дальность обзора
+        :level: уровень
+        :live: состояние жив или мертв
+        :hand: состояние ближнего боя
+        :damage: урон
+        :k_damage: коэфицент увеличений урона
+        :range: дальность атаки
+        """
+
         self.sheet = image
         self.coords = coords
         self.hp = hp + (hp * level // k_hp)
@@ -211,8 +232,14 @@ class Sprite:
             if goal is not None:
                 self.kills += goal.get_damage(self.weapon.damage)
 
-    # Стрельба
     def fire(self, goal: list, walls: list):
+        """
+        Стрельба
+        :param goal: Для героя передается список всех врагов на карте
+                     Для врагов передается список из одного элемента - героя
+        :param walls: Передается список с координатами всех стен
+
+        """
         cell_width = settings.MAZE_WIDTH // 28
         cell_height = settings.MAZE_HEIGHT // 30
         can_atack = True
@@ -220,11 +247,6 @@ class Sprite:
             can_atack = False
         if can_atack:
             self.animation_fire()
-            """
-            :param goal: Для героя передается список всех врагов на карте
-                         Для врагов передается список из одного элемента - героя
-            :param walls: Передается список с координатами всех стен
-            """
             self.weapon[-1].on_fly = True
 
             # Проверка не попал ли снаряд на край экрана
@@ -299,15 +321,21 @@ class Sprite:
         return self.animation_stay()
 
 
-
-# Родительский Класс для всех видов оружия ближнего боя
 class Simple_Weapon:
+    """
+    Родительский Класс для всех видов оружия ближнего боя
+    """
+
     def __init__(self, damage: int, range: int):
         self.damage = damage      # Урон
         self.range = range        # Дальность
 
-# Родительский Класс для всех видов оружия дальнего боя
+
 class Projectile_Weapon:
+    """
+    Родительский Класс для всех видов оружия дальнего боя
+    """
+
     def __init__(self, range: int, speed: int, damage: int, coords: list, orientation: int, image: str, on_fly: bool):
         self.range = range              # Дальность полета
         self.speed = speed              # Скорость полета

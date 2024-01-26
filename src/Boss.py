@@ -7,9 +7,20 @@ import time
 from decorators import mult_threading
 
 
-# Класс в котором будут реализованны способности боссов
+
 class Boss_skills:
+    """
+    Класс, отвечающий за способности боссов в игре
+    в нем реализованы все основные способности и ульты боссов в игре
+    """
+
     def __init__(self, boss: object, skills_list: list, ult: int):
+        """
+        :boss: Принимает босса из класса Boss
+        :skills_list: список скилов, они у нас пронумерованы
+        :ult: номер ульты, которая будет у босса
+        """
+
         self.boss = boss
         if len(skills_list) > 4:
             for i in range(5, len(skills_list)):
@@ -169,8 +180,12 @@ class Boss_skills:
         return True
 
 
-# Класс в котором будут реализованны фазы боссов
+
 class Boss_fases:
+    """
+    Класс в котором будут реализованны фазы боссов
+    """
+
     def __init__(self, boss: object, fas1: int, fas2: int):
         self.boss = boss
         if abs(fas1) > 2:
@@ -201,17 +216,28 @@ class Boss_fases:
         pass
 
 
-# Класс Босса
+
 class Boss(SimpleEnemy):
+    """
+    Класс Босса
+    тут мы уже непосредственно создаем нужного нам босса
+    """
+
     max_hp = None
     illusion = False
 
-    # Дает имя боссу
     def call(self, name):
+        """
+        Дает имя боссу
+        """
+
         self.name = name
 
-    # Зафиксировать максимальный запас здоровья босса, вызывается только вначале при создании объекта
     def fix_max_hp(self):
+        """
+        Зафиксировать максимальный запас здоровья босса, вызывается только вначале при создании объекта
+        """
+
         if self.max_hp is None:
             self.max_hp = self.hp
 
@@ -221,13 +247,19 @@ class Boss(SimpleEnemy):
     def set_fases(self, fas1: int, fas2: int):
         self.fases = Boss_fases(self, fas1, fas2)
 
-    # Фаза 1 при битве с боссом
     def activate_fas1(self):
+        """
+        Фаза 1 при битве с боссом
+        """
+
         if self.hp * 100 / self.max_hp <= 50:
             self.fases.fas1_0()
 
-    # Фаза 2 при битве с боссом
     def activate_fas2(self):
+        """
+        Фаза 2 при битве с боссом
+        """
+
         if self.hp * 100 / self.max_hp <= 30:
             self.fases.fas1_1()
 
