@@ -8,6 +8,7 @@ from . import settings
 from pygame.math import Vector2 as vec
 from .Hero import Knight
 from .Enemy import SimpleEnemy
+from .models import SpriteBuilder
 
 
 class Game:
@@ -27,7 +28,7 @@ class Game:
         pygame.mixer.music.play(-1)
         self.avatar = pygame.image.load(
             "assets/sprites/Soldier-Red.png").convert_alpha()
-        self.player = Knight(self.avatar, [settings.WIDTH // 2, settings.HEIGHT // 2],
+        self.player = SpriteBuilder().full_spawn(Knight, self.avatar, [settings.WIDTH // 2, settings.HEIGHT // 2],
                              100, 12, 1, 10, 2, 50, 1, True, True, 0, 10, 10, 20, 20, None)
         self.simple_mob_avat = pygame.image.load(
             "assets/sprites/Soldier-Yellow.png").convert_alpha()
@@ -40,7 +41,7 @@ class Game:
             for y, line in enumerate(f):
                 for x, enemy in enumerate(line):
                     if enemy == '*':
-                        e = SimpleEnemy(self.simple_mob_avat, [x * self.cell_width, y * self.cell_height], 50, 12, 0, 1,
+                        e = SpriteBuilder().full_spawn(SimpleEnemy, self.simple_mob_avat, [x * self.cell_width, y * self.cell_height], 50, 12, 0, 1,
                                         1, 150, 0, True, True, 0, 10, 10, 20, 20, None)
                         e.p_start = (x * self.cell_width, y * self.cell_height)
                         e.p_finish = (x * self.cell_width + 30, y * self.cell_height + 30)
@@ -133,7 +134,7 @@ class Game:
             time.sleep(0.25)
             self.is_running = False
         for enemy in self.enemies:
-            enemy.enemy_active(self.player, self.walls,
+            enemy.active(self.player, self.walls,
                                enemy.p_start, enemy.p_finish)
             self.animate(enemy.draw(enemy.state), tuple(enemy.coords))
             if enemy.live is False:

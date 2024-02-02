@@ -35,49 +35,6 @@ class Sprite:
              7: 5} # Фрейм анимации для ориентации
     stanned = False # Состояние оглушения
 
-    def __init__(self, image: object, coords: list, hp: int = 100, k_hp: int = 12, armor: float = 0, k_armor: int = 1, speed: int = 150, view_range: int = 100,
-                 level: int = 1, live: bool = True, hand: bool = True, bullets: int = 0, damage: int = 10, k_damage: int = 10, range: int = 20, p_speed: int = 20,
-                 proj_img: str = ""):
-
-        """
-        :image: моделька
-        :coords: начальные координаты
-        :hp: жизни
-        :k_hp: коэфицент увеличения жизней
-        :armor: броня
-        :k_armor: коэфицент увеличения брони
-        :speed: скорость передвижения
-        :view_range: дальность обзора
-        :level: уровень
-        :live: состояние жив или мертв
-        :hand: состояние ближнего боя
-        :damage: урон
-        :k_damage: коэфицент увеличений урона
-        :range: дальность атаки
-        """
-
-        self.sheet = image
-        self.coords = coords
-        self.hp = hp + (hp * level // k_hp)
-        self.armor = armor + (armor * level / k_armor)
-        self.speed = speed
-        self.view_range = view_range
-        self.level = level
-        self.live = live
-        self.hand = hand
-        self.bullets = bullets
-        self.xp_need = level * 200
-        self.p_speed = p_speed
-        self.sleep = 0
-        # Выбор оружия в зависимости от типа боя
-        if hand is True:
-            self.weapon = Simple_Weapon(damage + (damage * level // k_damage), range)
-        else:
-            self.weapon = []
-            for i in range(self.bullets):
-                self.weapon.append(Projectile_Weapon(range, p_speed, damage + (damage * level // k_damage),
-                                                     self.coords, self.orientation, proj_img, False))
-
     # Получение нужного фрейма спрайта с ассета
     def get_image(self, frame_x: int, frame_y: int, width: int, height: int, scale: int, colour: tuple):
         image = pygame.Surface((width, height)).convert_alpha()
@@ -319,6 +276,109 @@ class Sprite:
         elif animation == 6:
             return self.animation_win()
         return self.animation_stay()
+
+class SpriteBuilder:
+    """
+        :image: моделька
+        :coords: начальные координаты
+        :hp: жизни
+        :k_hp: коэфицент увеличения жизней
+        :armor: броня
+        :k_armor: коэфицент увеличения брони
+        :speed: скорость передвижения
+        :view_range: дальность обзора
+        :level: уровень
+        :live: состояние жив или мертв
+        :hand: состояние ближнего боя
+        :damage: урон
+        :k_damage: коэфицент увеличений урона
+        :range: дальность атаки
+    """
+
+    sprite = None
+
+    def set_model(self, image):
+        self.sprite.sheet = image
+        return self
+
+    def set_hp(self, hp, k_hp):
+        self.sprite.hp = hp + (hp * self.sprite.level // k_hp)
+        self.sprite.k_hp = k_hp
+        return self
+
+    def set_armor(self, armor, k_armor):
+        self.sprite.armor = armor + (armor * self.sprite.level / k_armor)
+        self.sprite.k_armor = k_armor
+        return self
+
+    def set_speed(self, speed):
+        self.sprite.speed = speed 
+        return self
+
+    def set_damage(self, damage, k_damage):
+        self.sprite.damage = damage
+        self.sprite.k_damage = k_damage
+        return self
+
+    def set_coords(self, coords):
+        self.sprite.coords = coords
+        return self
+
+    def set_xp(self, xp, xp_need, level):
+        self.sprite.xp = xp 
+        self.sprite.xp_need = xp_need
+        self.sprite.level = level
+        return self
+
+    def set_sleeping(self, sleep):
+        self.sprite.sleep = sleep
+        return self
+
+    def set_atack(self, hand, bullets, range_atack, p_speed, proj_img):
+        self.sprite.hand = hand
+        self.sprite.bullets = bullets
+        self.sprite.range = range_atack
+        self.sprite.p_speed = p_speed
+        if hand is True:
+            self.sprite.weapon = Simple_Weapon(
+                self.sprite.damage + (self.sprite.damage * self.sprite.level // self.sprite.k_damage), 
+                range_atack)
+        else:
+            self.sprite.weapon = []
+            for i in range(self.sprite.bullets):
+                self.sprite.weapon.append(Projectile_Weapon(range_atack, p_speed, 
+                        self.sprite.damage + (self.sprite.damage * self.sprite.level // self.sprite.k_damage),
+                        self.sprite.coords, self.sprite.orientation, proj_img, False))
+
+        return self
+
+    def set_no_level_depends(self, image, coords, speed, sleep):
+        self.set_model(image)
+        self.set_coords(coords)
+        self.set_speed(speed)
+        self.set_sleeping(sleep)
+
+    def set_level_depends(self, xp, xp_need, level, hp, k_hp, armor, k_armor, damage, k_damage, 
+        hand, bullets, range_atack, p_speed, prog_img):
+        self.set_xp(xp, xp_need, leve)
+        self.set_hp(hp, k_hp)
+        self.set_armor(armor, k_armor)
+        self.set_damage(damage, k_damage)
+        self.set_atack(hand, bullets, range_atack, p_speed, prog_img)
+
+    def spawn(self, Model) -> Sprite:
+        self.sprite = Model()
+        return self.sprite
+
+    def full_spawn(self, Model, image, coords, speed, sleep,
+        xp, xp_need, level, hp, k_hp, armor, k_armor, damage, k_damage, 
+        hand, bullets=0, range_atack=20, p_speed=20, prog_img=""):
+        self.sprite = Model()
+        self.set_no_level_depends(image, coords, speed, sleep)
+        self.set_level_depends(xp, xp_need, level, hp, k_hp, armor, k_armor, damage, k_damage, 
+            hand, bullets, range_atack, p_speed, prog_img)
+        return self.sprite
+        
 
 
 class Simple_Weapon:

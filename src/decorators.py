@@ -1,5 +1,7 @@
 from functools import wraps
-def mult_threading(func):
+
+
+def threadpool_decorator(func):
      @wraps(func)
      def wrapper(*args_, **kwargs_):
          import threading
