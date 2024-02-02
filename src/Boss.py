@@ -4,7 +4,7 @@ from Enemy import SimpleEnemy
 from Hero import Knight
 import threading
 import time
-from decorators import mult_threading
+from decorators import threadpool_decorator
 
 
 
@@ -36,7 +36,7 @@ class Boss_skills:
         if self.boss.hp > self.boss.max_hp:
             self.boss.hp = self.boss.hp
 
-    @mult_threading
+    @threadpool_decorator
     def stop_damage(self, damage: int, tm: int):
         time.sleep(time)
         self.boss.weapon.damage -= damage
@@ -49,7 +49,7 @@ class Boss_skills:
         self.boss.weapon.damage += damage
         self.stop_damage(damage, tm)
 
-    @mult_threading
+    @threadpool_decorator
     def stop_slow(self, hero: Knight, speed: int, tm: int):
         time.sleep(time)
         hero.speed += speed
@@ -68,7 +68,7 @@ class Boss_skills:
         """
         pass
 
-    @mult_threading
+    @threadpool_decorator
     def stop_stan(self, hero: Knight, tm: int):
         time.sleep(tm)
         hero.stanned = False
@@ -87,7 +87,7 @@ class Boss_skills:
         """
         pass
 
-    @mult_threading
+    @threadpool_decorator
     def stop_fast(self, speed: int, tm: int):
         time.sleep(tm)
         self.boss.speed -= speed
@@ -164,7 +164,7 @@ class Boss_skills:
         """
         pass
 
-    @mult_threading
+    @threadpool_decorator
     def ult_3(self, tm: int):
         """
         Ульта создает иллюзию босса на время
@@ -186,33 +186,33 @@ class Boss_fases:
     Класс в котором будут реализованны фазы боссов
     """
 
-    def __init__(self, boss: object, fas1: int, fas2: int):
+    def __init__(self, boss: object, phase1: int, phase2: int):
         self.boss = boss
-        if abs(fas1) > 2:
+        if abs(phase1) > 2:
             ult = 2
-        if abs(fas2) > 2:
+        if abs(phase2) > 2:
             ult = 2
-        self.fas1 = fas1
-        self.fas2 = fas2
+        self.phase1 = phase1
+        self.phase2 = phase2
 
-    def fas1_0(self):
+    def phase1_0(self):
         self.boss.weapon.damage += 5
         self.boss.speed += 2
 
-    def fas1_1(self):
+    def phase1_1(self):
         self.boss.armor += 2
         self.boss.weapon.damage += 2
 
-    def fas1_2(self):
+    def phase1_2(self):
         pass
 
-    def fas2_0(self):
+    def phase2_0(self):
         pass
 
-    def fas2_1(self):
+    def phase2_1(self):
         pass
 
-    def fas2_2(self):
+    def phase2_2(self):
         pass
 
 
@@ -245,25 +245,25 @@ class Boss(SimpleEnemy):
         self.skills = Boss_skills(self, skills_list, ult)
 
     def set_fases(self, fas1: int, fas2: int):
-        self.fases = Boss_fases(self, fas1, fas2)
+        self.fases = Boss_fases(self, fas1=fas1, fas2=fas2)
 
-    def activate_fas1(self):
+    def activate_phase1(self):
         """
         Фаза 1 при битве с боссом
         """
 
         if self.hp * 100 / self.max_hp <= 50:
-            self.fases.fas1_0()
+            self.fases.phase1_0()
 
-    def activate_fas2(self):
+    def activate_phase2(self):
         """
         Фаза 2 при битве с боссом
         """
 
         if self.hp * 100 / self.max_hp <= 30:
-            self.fases.fas1_1()
+            self.fases.phase1_1()
 
-    @mult_threading
+    @threadpool_decorator
     def use_skill(self, skill: str, kd: int, **kwargs):
         time.sleep(kd)
         s = ""
@@ -276,7 +276,7 @@ class Boss(SimpleEnemy):
         for i, skill in enumirate(self.skills.skills_list):
             use_skill(skill, kd[i], kwargs[skill])
 
-    @mult_threading
+    @threadpool_decorator
     def use_ult(self, kd: int, **kwargs):
         time.sleep(kd)
         s = ""
